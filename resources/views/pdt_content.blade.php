@@ -27,7 +27,7 @@
             <section>
                 
                 <section>
-                    <p> {{$product->content}} </p>
+                    <p> {{$product->content or ''}} </p>
                 </section>
             </section>
         </article>

@@ -28,6 +28,9 @@ class BookController extends Controller
  		$product = Product::find($product_id);
  		$pdt_content = PdtContent::where('product_id', $product_id)->first();
  		$pdt_image = PdtImages::where('product_id', $product_id)->get();
+ 		if( !$pdt_image ){
+ 			$pdt_image = array();
+ 		}
  		$cart = $request->cookie('cart');
  		if($cart){
             $cart_arr = explode(',', $cart);
@@ -43,8 +46,13 @@ class BookController extends Controller
                 break;
             }
         }
-      
- 		$product->content = $pdt_content->content;
+
+      	if(!$pdt_content){
+      		$product->content = "";
+      	}else{
+ 			$product->content = isset($pdt_content) ? $pdt_content->content : '' ;
+      	}
+
  		$product->images = $pdt_image;
  		$product->num = $num;
 

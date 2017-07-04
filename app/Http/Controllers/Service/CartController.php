@@ -47,6 +47,8 @@ class CartController extends Controller
         return response($m3_result->toJson())->withCookie(cookie('cart', implode(',',$cart_arr))) ;
     	
     }
+
+    
    
  
 }
