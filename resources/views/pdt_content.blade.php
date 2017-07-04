@@ -36,8 +36,8 @@
 
 
 
-<a href="javascript:;" class="weui_btn weui_btn weui_btn_primary">加入购物车</a>
-<a href="javascript:;" class="weui_btn weui_btn weui_btn_default">结算</a>
+<a href="javascript:;" id="addCart" class="weui_btn weui_btn weui_btn_primary">加入购物车</a>
+<a href="javascript:;" class="weui_btn weui_btn weui_btn_default">结算(<span id="num">{{$product->num}}</span>)</a>
                 
 @endsection
 
@@ -45,15 +45,33 @@
 <script type="text/javascript" src="/js/swiper-3.4.2.jquery.min.js"></script>
 <script type="text/javascript">
    
-    // product = "{{$product}}";
-    // console.log(product);
+    product = "{{$product}}";
+    console.log(product);
     // images = "{{$product->images}}";
     // console.log(images);
 
     var mySwiper = new Swiper('.swiper-container', {
         autoplay: 1000,//可选选项，自动滑动
         autoHeight: true
-    })
+    });
+
+
+    $('#addCart').click(function(){
+        product_id = "{{$product->id}}";
+        $.ajax({
+            url: '/addCart/product_id/'+product_id,
+            method: 'get',
+            dataType:'json',
+            data: {},
+            success: function(data) {
+                console.log(data);
+                if(data.status == 0 ){
+                    num = $('#num').html();
+                    $('#num').html(Number(num)+1);
+                }
+            }
+        });        
+    });
     
 </script>
 @endsection

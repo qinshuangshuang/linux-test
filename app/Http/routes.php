@@ -19,6 +19,7 @@ Route::get('/register','View\MemberController@toRegister');
 Route::get('/category', 'View\BookController@toCategory');
 Route::get('/product/category_id/{category_id}', 'View\BookController@toProduct');
 Route::get('/pdtcontent/product_id/{product_id}', 'View\BookController@toPdtContent');
+Route::get('/addCart/product_id/{product_id}', 'Service\CartController@addCart');
 
 
 Route::post('/getCategory', 'Service\BookController@getCategory');
