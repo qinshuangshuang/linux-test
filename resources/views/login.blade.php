@@ -46,7 +46,8 @@
 @section('my-js')
 <script type="text/javascript">
 
-
+    return_url = "{{$return_url}}";
+    alert("return_url=" + return_url);
 	$('#vcode').click(function(){
 		$(this).attr('src', 'service/validate_code/create?random'+ Math.random());
 	});
@@ -66,15 +67,20 @@
             phone = username;
             email = '';
         }
+
+         
         $.ajax({
             url: '/service/login',
             method: 'post',
             dataType:'json',
             data: {phone:phone,email:email, vcode:vcode, password:password, _token:"{{csrf_token()}}"},
             success: function(data) {
+                console.log(data);
                 show_toptips( data.message );
                 if(data.status ==0 ){
-                    window.location.href = "category";
+                    console.log("return_url ===" +return_url  );
+                    alert( return_url );
+                    window.location.href = return_url ; 
                 }
             }
         });    

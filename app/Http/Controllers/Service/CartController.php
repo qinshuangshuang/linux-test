@@ -48,7 +48,30 @@ class CartController extends Controller
     	
     }
 
-    
+    public function delCart(Request $request){
+        $ids = $request->input('ids');
+        $id_arr = explode(",", $ids);
+
+        $cart = $request->cookie('cart');
+        if($cart){
+            $cart_arr = explode(',', $cart);
+        }else{
+            $cart_arr = array();
+        }
+
+        foreach ($cart_arr as $key => $cart) {
+            $id = explode(":", $cart)[0];
+            if( in_array($id, $id_arr) ){
+                unset( $cart_arr[$key] );
+            }
+        }
+
+        $m3_result = new M3Result;
+        $m3_result->status = 0;
+        $m3_result->message = "删除成功";
+        return response($m3_result->toJson())->withCookie(cookie('cart', implode(',',$cart_arr))) ;
+        
+    }
    
  
 }

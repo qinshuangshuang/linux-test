@@ -4,18 +4,24 @@ namespace App\Http\Controllers\View;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+
 use App\Http\Requests;
 
 use App\Http\Controllers\Controller;
+use App\Entity\Category;
 use App\Entity\Product;
+use App\Entity\PdtContent;
 use App\Entity\CartItem;
+use App\Entity\Order;
+use App\Entity\OrderItem; 
 use App\Models\M3Result;
 
-class CartController extends Controller
+class OrderController extends Controller
 {
    
-    public function toCart(Request $request){
-        $cart = $request->cookie('cart');
+    public function toOrderPay(Request $request)
+    {
+    	$cart = $request->cookie('cart');
         if($cart){
             $cart_arr = explode(',', $cart);
         }else{
@@ -25,7 +31,7 @@ class CartController extends Controller
         $member = $request->session()->get('member', '');
         if($member != ''){
             $carts = $this->synCart($member->id, $cart_arr);
-            return response()->view('cart', ['carts'=>$carts])->withCookie('cart', null);
+            return response()->view('order_pay', ['carts'=>$carts])->withCookie('cart', null);
         }
 
         $cart_items = array();
@@ -40,49 +46,10 @@ class CartController extends Controller
                 array_push($cart_items, $cart_item);
               }
          }
-
-        return view('cart')->with('carts', $cart_items);
+        return view('order_pay')->with('carts', $cart_items);
     }
-   
-    // private function synCart($member_id, $cart_arr){
-    //     $cart_item = CartItem::where('member_id', $member_id);
-    //     $cart_items = array();
-    //     foreach ($cart_arr as $key => $value) {
-    //         $id_arr = explode(':', $value);
-    //         $product_id = $id_arr[0];
-    //         $num = $id_arr[1];
-            
-    //         $exists = false;
-    //         foreach ($cart_item as $key => $value) {
-    //             if($value->product_id == $product_id){
-    //                 if($value->count < $num){
-    //                     $value->count = $num;
-    //                     $value->save();
-    //                 }
-    //                 $exists = true;
-    //                 break;
-    //             }
-    //         }
-    //         if($exists == false){
-    //             $cart_item = new CartItem;
-    //             $cart_item->member_id = $member_id;
-    //             $cart_item->product_id = $product_id;
-    //             $cart_item->count = $num;
-    //             $cart_item->save();
-    //             $cart_item->product = Product::find($cart_item->product_id);
-    //             array_push($cart_items, $cart_item);
-    //         }
 
-    //         foreach ($cart_items as $key => &$value) {
-    //             $value->product = Product::find($value->product_id);
-    //         }
-
-    //      }
-    //     return $cart_items;
-
-    // }
-
-      private function synCart($member_id, $bk_cart_arr){
+    private function synCart($member_id, $bk_cart_arr){
             $cart_items = CartItem::where('member_id', $member_id)->get();
 
             $cart_items_arr = array();
@@ -123,6 +90,55 @@ class CartController extends Controller
             }
 
             return $cart_items_arr;
-          }
+    }
 
+    public function toOrderCommit(Request $request, $ids){
+        if($ids){
+            $ids_arr = explode(',', $ids);
+        }else{
+            $ids_arr = array();
+        }
+        $member = $request->session()->get('member', '');
+        if($member){
+            $member_id = $member->id;
+        }
+
+        $cart_items = CartItem::where('member_id', $member->id)->get();
+        // $cart_items = CartItem::where('member_id',$member_id)->whereIn('product_id', $ids_arr )->get();
+        // var_dump($cart_items);
+
+        $total_price = 0;
+        foreach ($cart_items as $key => &$cart_item) {
+            $cart_item->product = Product::find($cart_item->product_id);
+            $total_price += $cart_item->product->price * $cart_item->count;
+              // array_push($cart_items, $cart_item);
+        }
+
+        // var_dump($cart_items);
+        return view('order_commit')->with(['carts'=>$cart_items, 'total_price'=>$total_price]);
+    }
+
+    public function toOrderList(Request $request){
+        $member = $request->session()->get('member', '');
+        if($member){
+            $member_id = $member->id;
+        }
+
+        $total_count = 0;
+        $order_list = Order::where('member_id', $member->id)->get();
+        foreach ($order_list as $key => &$order) {
+            $order_id = $order->id;
+            $order->orderItem = OrderItem::where('order_id', $order_id)->get();
+            foreach ($order->orderItem as $k => &$v) {
+                $v->product = Product::where('id', $v->product_id)->first();
+                $total_count = $v->count;
+            }
+            $order->total_count = $total_count;
+
+        }
+
+        // return $order_list;
+        return view('order_list')->with('order_list', $order_list);
+
+    }
 }

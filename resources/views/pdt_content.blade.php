@@ -37,7 +37,7 @@
 
 
 <a href="javascript:;" id="addCart" class="weui_btn weui_btn weui_btn_primary">加入购物车</a>
-<a href="javascript:;" class="weui_btn weui_btn weui_btn_default">结算(<span id="num">{{$product->num}}</span>)</a>
+<a href="/cart" class="weui_btn weui_btn weui_btn_default">查看购物车(<span id="count">{{$product->count}}</span>)</a>
                 
 @endsection
 
@@ -66,8 +66,8 @@
             success: function(data) {
                 console.log(data);
                 if(data.status == 0 ){
-                    num = $('#num').html();
-                    $('#num').html(Number(num)+1);
+                    count = $('#count').html();
+                    $('#count').html(Number(count)+1);
                 }
             }
         });        

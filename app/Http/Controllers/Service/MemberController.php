@@ -116,13 +116,15 @@ class MemberController extends Controller
      	$password = $request->input('password');
      	$vcode = $request->input('vcode');
      	$code = $request->session()->get('validate_code');
+     	
+
      	$m3_result = new M3Result;
 
      	if($vcode == $code){
      		if($phone != ''){
      			$m = Member::where(array('phone'=>$phone))->first();
      			if($m->password == md5($password+'laravel')){
-     				  $request->session()->put('user',$m);
+     				  $request->session()->put('member',$m);
      				  $m3_result->status = 0;
 			          $m3_result->message = '登陆成功！';
 			          return $m3_result->toJson();
@@ -134,7 +136,7 @@ class MemberController extends Controller
      		}else{
      			$m = Member::where(array('email'=>$email))->first();
      			if($m->password == md5($password+'laravel') && $m['active']=='1'){
-     				  $request->session()->put('user',$m);
+     				  $request->session()->put('member',$m);
      				  $m3_result->status = 0;
 			          $m3_result->message = '登陆成功！';
 			          return $m3_result->toJson();

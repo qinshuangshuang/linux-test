@@ -10,6 +10,7 @@ use App\Entity\Category;
 use App\Entity\Product;
 use App\Entity\PdtContent;
 use App\Entity\PdtImages;
+use App\Entity\CartItem;
 use Log;
 
 class BookController extends Controller
@@ -31,32 +32,44 @@ class BookController extends Controller
  		if( !$pdt_image ){
  			$pdt_image = array();
  		}
- 		$cart = $request->cookie('cart');
- 		if($cart){
-            $cart_arr = explode(',', $cart);
+        if(!$pdt_content){
+            $product->content = "";
         }else{
-            $cart_arr = array();
+            $product->content = isset($pdt_content) ? $pdt_content->content : '' ;
         }
-        $num = 0;
-        foreach ($cart_arr as $key => $value) {
-            $id_arr = explode(':', $value);
-            $id = $id_arr[0];
-            if($id == $product_id){
-                $num = $id_arr[1];
-                break;
+        $product->images = $pdt_image;
+
+
+        $member = $request->session()->get('member', '');
+        if($member != ''){
+            $cart_items = CartItem::where('product_id', $product_id)->get();
+            foreach ($cart_items as $cart_item) {
+                if($cart_item->product_id == $product_id) {
+                  $count = $cart_item->count;
+                  break;
+                }
             }
-        }
+        }else{
 
-      	if(!$pdt_content){
-      		$product->content = "";
-      	}else{
- 			$product->content = isset($pdt_content) ? $pdt_content->content : '' ;
-      	}
-
- 		$product->images = $pdt_image;
- 		$product->num = $num;
-
- 		return view('pdt_content')->with('product', $product);
+     		$cart = $request->cookie('cart');
+     		if($cart){
+                $cart_arr = explode(',', $cart);
+            }else{
+                $cart_arr = array();
+            }
+            $count = 0;
+            foreach ($cart_arr as $key => $value) {
+                $id_arr = explode(':', $value);
+                $id = $id_arr[0];
+                if($id == $product_id){
+                    $count = $id_arr[1];
+                    break;
+                }
+            }
+          	
+        }    
+     	$product->count = $count;
+     	return view('pdt_content')->with('product', $product);
  	}
    
 }

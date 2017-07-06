@@ -20,8 +20,23 @@ Route::get('/category', 'View\BookController@toCategory');
 Route::get('/product/category_id/{category_id}', 'View\BookController@toProduct');
 Route::get('/pdtcontent/product_id/{product_id}', 'View\BookController@toPdtContent');
 Route::get('/addCart/product_id/{product_id}', 'Service\CartController@addCart');
-Route::get('/cart', 'View\CartController@toCart');
+Route::post('/delCart', 'Service\CartController@delCart');
 
+Route::get('/cart','View\CartController@toCart');
+Route::get('/order_pay','View\OrderController@toOrderPay');
+Route::get('/order_commit/{ids}','View\OrderController@toOrderCommit');
+Route::get('/order_list','View\OrderController@toOrderList');
+
+
+Route::get('/toAlipay','Service\PayController@toAlipay');
+Route::any('/alipay','Service\PayController@alipay');
+Route::get('/call_back','Service\PayController@call_back');
+Route::any('/notify','Service\PayController@notify');
+Route::get('/merchant','Service\PayController@merchant');
+
+Route::group(['middleware'=>'check.login'], function(){
+
+});
 
 Route::post('/getCategory', 'Service\BookController@getCategory');
 Route::post('/getProduct', 'Service\BookController@getProduct');
@@ -36,3 +51,6 @@ Route::group(['prefix'=>'service'], function(){
 	Route::any('register', 'Service\MemberController@register');
 	Route::post('login', 'Service\MemberController@login');
 });
+
+
+
