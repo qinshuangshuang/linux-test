@@ -15,6 +15,9 @@ use App\Entity\CartItem;
 use App\Entity\Order;
 use App\Entity\OrderItem; 
 use App\Models\M3Result;
+use App\Models\Wxjsconfig;
+use App\Tool\wxjspay\WXTool;
+
 
 class OrderController extends Controller
 {
@@ -105,17 +108,52 @@ class OrderController extends Controller
 
         $cart_items = CartItem::where('member_id', $member->id)->get();
         // $cart_items = CartItem::where('member_id',$member_id)->whereIn('product_id', $ids_arr )->get();
-        // var_dump($cart_items);
 
+        $order = new Order();
+        $order->save();
         $total_price = 0;
+        $name = '';
         foreach ($cart_items as $key => &$cart_item) {
             $cart_item->product = Product::find($cart_item->product_id);
             $total_price += $cart_item->product->price * $cart_item->count;
-              // array_push($cart_items, $cart_item);
-        }
+            $name .= '《'. $cart_item->product->name .'》';
 
-        // var_dump($cart_items);
-        return view('order_commit')->with(['carts'=>$cart_items, 'total_price'=>$total_price]);
+            $order_item = new OrderItem;
+            $order_item->order_id = $order->id;
+            $order_item->product_id = $cart_item->product_id;
+            $order_item->count = $cart_item->count;
+            $order_item->snapshot = json_encode($cart_item->product);
+            $order_item->save();
+        }
+        // 添加订单信息
+        $order->member_id = $member_id;
+        $order->total_price = $total_price;
+        $order->name = $name;
+        $order->status = '0';
+        $order->save();
+        $order->order_no = 'E'.time().$order->id;
+        $order->save();
+
+      
+       
+        $access_token = WXTool::getAccessToken();
+        $jsApiTicket = WXTool::getJsApiTicket($access_token);
+        $url = 'http://' .$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ;
+        $timestamp = time();
+        $noncestr = WXTool::createNonceStr();
+        $signature = WXTool::signature($jsApiTicket, $noncestr, $timestamp, $url) ;
+
+        $wxjsconfig = new Wxjsconfig();
+        $wxjsconfig->appId = config('wxjs_config.APPID');
+        $wxjsconfig->timestamp = $timestamp;
+        $wxjsconfig->nonceStr = $noncestr;
+        $wxjsconfig->signature = $signature;
+
+        return view('order_commit')->with(['carts'=>$cart_items, 
+                                           'total_price'=>$total_price, 
+                                           'name'=>$name, 
+                                           'order_no'=>$order->order_no, 
+                                           'wxjsconfig'=>$wxjsconfig]);
     }
 
     public function toOrderList(Request $request){

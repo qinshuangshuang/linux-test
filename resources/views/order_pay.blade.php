@@ -48,13 +48,12 @@
         var ids = '';
         $("input[name=toBuy]:checked").each(function(){
             id = $(this).attr("id");
-            alert(id);
             ids += id+',';
         });
         ids = ids.substring(0, ids.length-1);
-
+        $('input[name=ids]').val(ids);
+        
         console.log(ids);
-        alert('ids=='+ids);
 
         location.href = '/order_commit/'+ids;
         

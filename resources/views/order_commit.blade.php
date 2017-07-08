@@ -37,8 +37,8 @@
         <div class="weui_cell weui_cell_select">
             <div class="weui_cell_bd weui_cell_primary">
                 <select class="weui_select" name="payType">
-                    <option selected="" value="1">微信</option>
-                    <option value="2">支付宝</option>
+                    <option selected="" value="1">支付宝</option>
+                    <option value="2">微信</option>
                 </select>
             </div>
         </div>
@@ -56,8 +56,15 @@
        
     </div>
 
+    <form action="/alipay" id="alipay" method="post">
+      {{ csrf_field() }}
+      <input type="hidden" name="total_price" value="{{$total_price}}" />
+      <input type="hidden" name="name" value="{{$name}}" />
+      <input type="hidden" name="order_no" value="{{$order_no}}" />
+    </form>
+
      <div class="weui_cells weui_cells_split">
-            <a href="" id="toCommit" class="weui_btn weui_btn weui_btn_primary">支付</a>
+            <a href="javascript:;" id="toCommit" class="weui_btn weui_btn weui_btn_primary">支付</a>
             <a href="javascript:;" id="pdtDel" class="weui_btn weui_btn weui_btn_default">取消</a>
     </div>
        
@@ -69,10 +76,10 @@
 <script type="text/javascript">
     wx.config({
         debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-        appId: '', // 必填，公众号的唯一标识
-        timestamp: , // 必填，生成签名的时间戳
-        nonceStr: '', // 必填，生成签名的随机串
-        signature: '',// 必填，签名，见附录1
+        appId: "{{$wxjsconfig->appId}}", // 必填，公众号的唯一标识
+        timestamp: {{$wxjsconfig->timestamp}}, // 必填，生成签名的时间戳
+        nonceStr: "{{$wxjsconfig->nonceStr}}", // 必填，生成签名的随机串
+        signature: "{{$wxjsconfig->signature}}",// 必填，签名，见附录1
         jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
     });
     wx.ready(function(){
@@ -85,21 +92,14 @@
    
     $('#toCommit').click(function(){
         type = $('select[name=payType]').val();
-        if( type == 1 ){
+        console.log(type);
+        if( type == '2' ){
             //微信
 
         }else{
+
             //支付宝
-            $.ajax({
-                url: '/alipay',
-                method: 'post',
-                dataType:'json',
-                data: {_token:"{{csrf_token()}}"},
-                success: function(data) {
-                    console.log(data);
-                    
-                }
-            });    
+           $('#alipay').submit();
         }
 
     });

@@ -53,22 +53,22 @@ class PayController extends Controller
 			//用户付款中途退出返回商户的地址。需http://格式的完整路径，不允许加?id=123这类自定义参数
 
 			//卖家支付宝帐户
-			$seller_email = $_POST['WIDseller_email'];
-			// $seller_email = "3222642119@qq.com";
+			// $seller_email = $_POST['WIDseller_email'];
+			$seller_email = "3222642119@qq.com";
 			//必填
 
 			//商户订单号
-			$out_trade_no = $_POST['WIDout_trade_no'];
+			$out_trade_no = $_POST['order_no'];
 			// $out_trade_no = "20170503072348f3ad3549ce41444564";
 			//商户网站订单系统中唯一订单号，必填
 
 			//订单名称
-			$subject = $_POST['WIDsubject'];
+			$subject = $_POST['name'];
 			// $subject = "test";
 			//必填
 
 			//付款金额
-			$total_fee = $_POST['WIDtotal_fee'];
+			$total_fee = $_POST['total_price'];
 			// $total_fee = 0.01;
 			//必填
 
